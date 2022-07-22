@@ -455,6 +455,16 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 argmin developers</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
@@ -494,6 +504,10 @@
 <span class="doccomment">/// parameter can be set via [`with_tolerance_cost`](`LBFGS::with_tolerance_cost`).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// TODO: Implement compact representation of BFGS updating (Nocedal/Wright p.230)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Requirements on the optimization problem</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The optimization problem is required to implement [`CostFunction`] and [`Gradient`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Reference</span>
 <span class="doccomment">///</span>
@@ -650,9 +664,15 @@
         <span class="ident">problem</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Problem</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>,
         <span class="kw-2">mut</span> <span class="ident">state</span>: <span class="ident">IterState</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">G</span>, (), (), <span class="ident">F</span><span class="op">&gt;</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">IterState</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">G</span>, (), (), <span class="ident">F</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">KV</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">param</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">take_param</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">param</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">take_param</span>().<span class="ident">ok_or_else</span>(<span class="macro">argmin_error_closure!</span>(
+            <span class="ident">PotentialBug</span>,
+            <span class="string">&quot;`L-BFGS`: Parameter vector in state not set.&quot;</span>
+        ))<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">cur_cost</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">get_cost</span>();
-        <span class="kw">let</span> <span class="ident">prev_grad</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">take_grad</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">prev_grad</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">take_grad</span>().<span class="ident">ok_or_else</span>(<span class="macro">argmin_error_closure!</span>(
+            <span class="ident">PotentialBug</span>,
+            <span class="string">&quot;`L-BFGS`: Gradient in state not set.&quot;</span>
+        ))<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">gamma</span>: <span class="ident">F</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">sk</span>), <span class="prelude-val">Some</span>(<span class="ident">yk</span>)) <span class="op">=</span> (<span class="self">self</span>.<span class="ident">s</span>.<span class="ident">back</span>(), <span class="self">self</span>.<span class="ident">y</span>.<span class="ident">back</span>()) {
             <span class="ident">sk</span>.<span class="ident">dot</span>(<span class="ident">yk</span>) <span class="op">/</span> <span class="ident">yk</span>.<span class="ident">dot</span>(<span class="ident">yk</span>)
@@ -908,5 +928,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="argmin" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="argmin" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>
